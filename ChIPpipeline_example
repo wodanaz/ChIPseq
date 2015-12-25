@@ -1,0 +1,484 @@
+
+#############################
+### In this Experiment I will map the reads in a hand curated Reference Pairie Vole genome that includes pseudogene and avpr1a BACs
+
+
+###############################
+#### Building a reference index
+#### The first step in alignment is building an aligner-specific representation of your organism's genome.
+
+
+# Build a reference index
+# Build BWA index for Microtus ochrogaster genome
+
+module load bwa/0.7.7
+echo 'bwa index Moch.fa' > bwabac
+launcher_creator.py -j bwabac -n bwabac -l bwabac.job -q normal -t 12:00:00 -a project -e email.com
+qsub bwabac.job
+
+# Build STAMPY index for Prairie Vole genome
+
+module swap intel gcc
+module load stampy
+
+# First I have to build a genome (.stidx) file:
+echo 'stampy.py -G Moch Moch.fa' > build
+launcher_creator.py -j build -n build -l build.job -q normal -t 12:00:00 -a project -e email
+qsub build.job
+
+# Then:
+#### Build a hash (.sthash) file:
+module swap intel gcc
+module load stampy
+echo 'stampy.py -g Moch -H Moch' > build2
+launcher_creator.py -j build2 -n build2 -l build2.job -q normal -t 12:00:00 -a project -e email
+qsub build2.job
+
+# Blasting avpr1a and pseudogene
+
+module load blast
+makeblastdb -in Moch.fa -dbtype nucl
+
+echo 'tblastn -query avpr1a.fa -db Moch.fa  > mochv1ar.blast.txt' >blast
+launcher_creator.py -j blast -n blast -l blast.job -q normal -t 12:00:00 -a project -e email
+qsub blast.job
+
+echo 'tblastn -query pseudo.fa -db Moch.fa > mochpseudo.blast.txt' >blast2
+launcher_creator.py -j blast2 -n blast2 -l blast2.job -q normal -t 12:00:00 -a project -e email
+qsub blast2.job
+
+#Comandos para BLAST+
+module load blast
+echo 'makeblastdb -in Moch.fa -dbtype nucl -out Moch' > blast1
+launcher_creator.py -j blast1 -n blast1 -l blast1.job -q normal -t 12:00:00 -a project -e email
+qsub blast1.job
+
+
+echo 'blastn -task megablast -num_threads 8 -db Moch -query avpr1.fa -out output_avpr1a.txt'> blast2
+launcher_creator.py -j blast2 -n blast2 -l blast2.job -q normal -t 12:00:00 -a project -e email
+qsub blast2.job
+
+echo 'blastn -task megablast -num_threads 8 -db Moch -query pseudo.fa -out output_pseudo.txt'> blast3
+launcher_creator.py -j blast3 -n blast3 -l blast3.job -q normal -t 12:00:00 -a project -e email
+qsub blast3.job
+
+
+### Unzipped fastq files list
+
+P1_str_chip.R1.fastq
+P1_str_chip.R2.fastq
+P1_str_input.R1.fastq
+P1_str_input.R2.fastq
+P1_Vpall_chip.R1.fastq
+P1_Vpall_chip.R2.fastq
+P1_Vpall_input.R1.fastq
+P1_Vpall_input.R2.fastq
+P2_str_chip.R1.fastq
+P2_str_chip.R2.fastq
+P2.str_input.R1.fastq
+P2.str_input.R2.fastq
+P2_Vpall_chip.R1.fastq
+P2_Vpall_chip.R2.fastq
+P2_Vpall_input.R1.fastq
+P2_Vpall_input.R2.fastq
+P3_str_chip.R1.fastq
+P3_str_chip.R2.fastq
+P3_str_input.R1.fastq
+P3_str_input.R2.fastq
+P3_Vpall_chip.R1.fastq
+P3_Vpall_chip.R2.fastq
+P3_VPall_input.R1.fastq
+P3_VPall_input.R2.fastq
+
+#get read counts for output files
+>read_counts.txt; for file in $(ls *.fastq); do count=$(grep "@NB501060" $file | wc -l); echo -e "$file\t$count" >> rawread_counts.txt; done
+cat rawread_counts.txt
+
+P1_str_chip.R1.fastq	35063312
+P1_str_chip.R2.fastq	35063312
+P1_str_input.R1.fastq	36380302
+P1_str_input.R2.fastq	36380302
+P1_Vpall_chip.R1.fastq	33015361
+P1_Vpall_chip.R2.fastq	33015361
+P1_Vpall_input.R1.fastq	31491868
+P1_Vpall_input.R2.fastq	31491868
+P2_str_chip.R1.fastq	41418406
+P2_str_chip.R2.fastq	41418406
+P2.str_input.R1.fastq	29083304
+P2.str_input.R2.fastq	29083304
+P2_Vpall_chip.R1.fastq	45082840
+P2_Vpall_chip.R2.fastq	45082840
+P2_Vpall_input.R1.fastq	31213806
+P2_Vpall_input.R2.fastq	31213806
+P3_str_chip.R1.fastq	43222779
+P3_str_chip.R2.fastq	43222779
+P3_str_input.R1.fastq	29694579
+P3_str_input.R2.fastq	29694579
+P3_Vpall_chip.R1.fastq	27793477
+P3_Vpall_chip.R2.fastq	27793477
+P3_VPall_input.R1.fastq	33777564
+P3_VPall_input.R2.fastq	33777564
+
+####################################
+# MAPPING to the Prairie vole genome
+
+module load bwa/0.7.7
+ChIP_bwa2sai_launch.pl '\.fastq$' REF/Moch.fa > bwa
+launcher_creator.py -j bwa -n bwa -l bwajob -q normal -t 12:00:00 -a project -e email
+cat bwajob | perl -pe 's/12way \d+/4way 168/' > bwa.job
+qsub bwa.job
+
+
+module load bwa/0.7.7
+# Report the single end alignments as SAM
+
+
+# Modify according to your file names
+export GENOME_REF=REF/Moch.fa
+ls *R1-final.fastq | perl -pe 's/^(\S+)_R1-final.fastq$/bwa sampe \$GENOME_REF $1\_R1-final.fastq.sai $1\_R2-final.fastq.sai $1\_R1-final.fastq $1\_R2-final.fastq > $1\.sam/' > sams
+ls *R1.fastq | perl -pe 's/^(\S+).R1.fastq$/bwa sampe \$GENOME_REF $1\.R1.fastq.sai $1\.R2.fastq.sai $1\.R1.fastq $1\.R2.fastq > $1\.sam/' >> sams
+
+launcher_creator.py -j sams -n sams -l samsjob -q largemem -t 24:00:00 -a project -e email
+cat samsjob | perl -pe 's/12way \d+/1way 24/' > sams.job
+qsub sams.job
+
+##############################
+
+# Convert SAM to BAM and sort
+# Convert SAM to BAM
+ 
+ls *.sam | perl -pe 's/^(\S+)\.sam$/samtools view -S -b $1\.sam >$1\.bam/' > s2b
+launcher_creator.py -j s2b -n s2b -l s2bjob -q largemem -t 24:00:00 -a project -e email
+cat s2bjob | perl -pe 's/12way \d+/1way 24/' > s2b.job
+qsub s2b.job
+
+
+
+
+#####################
+### REMAP with STAMPY
+# 
+# This may be done later if necessary
+
+#
+###module swap intel gcc
+###module load stampy
+#use Launcher to do this:
+###ChIP_stampy_launch.pl '\.bam$' REF/Moch > stampy
+###launcher_creator.py -j stampy -n stampy -l stampyjob -q largemem -t 24:00:00 -a project -e email
+###cat stampyjob | perl -pe 's/12way 12/1way 24/' > stampy.job
+###qsub stampy.job
+
+
+############################
+# Sort the BAM by location. I cant take  some time to process
+
+ls *.bam | perl -pe 's/^(\S+)\.bam$/samtools sort $1\.bam $1\.sort/' > sort
+launcher_creator.py -j sort -n sort -l sortjob -q normal -t 12:00:00 -a project -e email
+cat sortjob | perl -pe 's/12way \d+/4way 84/' > sort.job 
+qsub sort.job
+
+
+# Load Picard
+module load picard
+ 
+# Picard tools are in Java, I might be necessay to rewrite to the appropriate .jar file.
+# It needs a lot of memory (5 GB) = smooth run
+
+ls *.sort.bam > bams
+cat bams | wc -l  
+
+module load picard
+module load samtools
+module load jdk64
+cat bams | perl -pe 's/(\S+)\.sort.bam/java -Xmx5g -jar \$TACC_PICARD_DIR\/MarkDuplicates\.jar INPUT=$1\.sort\.bam OUTPUT=$1\.dup.bam METRICS_FILE=$1\.dupinfo.txt ASSUME_SORTED=true VALIDATION_STRINGENCY=LENIENT/' >bam2dup
+launcher_creator.py -j bam2dup -n bam2dup -l bam2dupjob -q normal -t 12:00:00 -a project -e email
+cat bam2dupjob | perl -pe 's/12way \d+/4way 84/' > bam2dup.job # REPLACE NNN WITH 12*ceiling([number of bam files]/4)
+qsub bam2dup.job
+
+
+# The duplicate-marked BAM files need to be INDEXED
+# In order to do so, need to index the duplicate-marked BAM file
+# then it creates a .bai index file
+# this index should be in the same location than the BAM file (ALWAYS, It might be important for visualization)
+
+# Index a sorted BAM file and the duplicate-marked BAM. 
+
+ls *.dup.bam | perl -pe 's/^(\S+)\.bam$/samtools index $1\.bam/' > index
+launcher_creator.py -j index -n index -l index.job -q normal -t 12:00:00 -a project -e email
+qsub index.job
+
+
+######################
+# MAPPING/ALIGNMENT STATISTICS
+# It is good to have a quality file in order to retrieve some alignment statistics
+# SAVE THIS in your reference folder in EXCEL.
+# I don't like to estimate the fragment size for peak calling becasue I prefer MACS2 to do it, but it can be easily done.
+# The samtools flagstat command produces a simple alignment statistics summary based on the BAM flag field values.
+# Generate a samtools flagstats report
+
+
+ls *.dup.bam | perl -pe 's/^(\S+)\.bam$/samtools flagstat $1\.bam | tee $1\.flagstat.txt/' > flag
+launcher_creator.py -j flag -n flag -l flag.job -q normal -t 12:00:00 -a project -e email
+qsub flag.job
+
+##############################################################################################################
+## The resulting statistics report looks like the example below for paired-end data. Some important reference values are:
+## % mapped – this should be high for ChIP-seq datasets (85%+)
+## % properly paired – this should also be high for ChIP-seq datasets (85%+). 
+## An alignment is considered properly paired if both it and its mate (i.i. both R1 and R2) are aligned and are reasonably close to one another.
+## % duplicates (= # duplicates / # mapped) – lower duplication rates are better. 
+##############################################################################################################
+##############################################################################################################
+
+
+### Generate alignment statistics by chromosome
+## alignments by contig/chromosome
+## The samtools idxstat command produces a summary of alignments to each contig/chromosome
+## This can sometimes be informative
+## for example, in yeast ribosomal protein genes are all on chrXII:
+
+
+ls *.dup.bam | perl -pe 's/^(\S+)\.bam$/samtools idxstats $1\.bam > $1\.idxstats.txt/' > chrstats
+launcher_creator.py -j chrstats -n chrstats -l chrstats.job -q normal -t 12:00:00 -a project -e email
+qsub chrstats.job
+
+
+Number of alignments in the DP001225 clone
+contig  					length  # map
+P1_str_chip.bwa.dup.idxstats.txt:DP001225	141531	14117	252
+P1_str_input.bwa.dup.idxstats.txt:DP001225	141531	21225	420
+P1_Vpall_chip.bwa.dup.idxstats.txt:DP001225	141531	10346	221
+P1_Vpall_input.bwa.dup.idxstats.txt:DP001225	141531	18310	361
+P2_str_chip.bwa.dup.idxstats.txt:DP001225	141531	4271	76
+P2_str_input.bwa.dup.idxstats.txt:DP001225	141531	16731	344
+P2_Vpall_chip.bwa.dup.idxstats.txt:DP001225	141531	3623	79
+P2_Vpall_input.bwa.dup.idxstats.txt:DP001225	141531	18315	308
+P3_str_chip.bwa.dup.idxstats.txt:DP001225	141531	19600	402
+P3_str_input.bwa.dup.idxstats.txt:DP001225	141531	18590	324
+P3_Vpall_chip.bwa.dup.idxstats.txt:DP001225	141531	8903	179
+P3_Vpall_input.bwa.dup.idxstats.txt:DP001225	141531	21573	387
+
+
+
+##########################################
+### HERE awk script to find average insert size
+
+samtools view -F 0x4 -f 0x2 P1_str_chip.dup.bam | awk 'BEGIN{ FS="\t"; sum=0; nrec=0; } { if ($9 > 0) {sum += $9; nrec++;} } END{ print sum/nrec; }'
+201.768
+samtools view -F 0x4 -f 0x2 P1_str_input.dup.bam | awk 'BEGIN{ FS="\t"; sum=0; nrec=0; } { if ($9 > 0) {sum += $9; nrec++;} } END{ print sum/nrec; }'
+185.127
+samtools view -F 0x4 -f 0x2 P1_Vpall_chip.dup.bam | awk 'BEGIN{ FS="\t"; sum=0; nrec=0; } { if ($9 > 0) {sum += $9; nrec++;} } END{ print sum/nrec; }'
+194.65
+samtools view -F 0x4 -f 0x2 P1_Vpall_input.dup.bam | awk 'BEGIN{ FS="\t"; sum=0; nrec=0; } { if ($9 > 0) {sum += $9; nrec++;} } END{ print sum/nrec; }'
+204.4
+samtools view -F 0x4 -f 0x2 P2_str_chip.dup.bam | awk 'BEGIN{ FS="\t"; sum=0; nrec=0; } { if ($9 > 0) {sum += $9; nrec++;} } END{ print sum/nrec; }'
+225.081
+samtools view -F 0x4 -f 0x2 P2_str_input.dup.bam | awk 'BEGIN{ FS="\t"; sum=0; nrec=0; } { if ($9 > 0) {sum += $9; nrec++;} } END{ print sum/nrec; }'
+204.833
+samtools view -F 0x4 -f 0x2 P2_Vpall_chip.dup.bam | awk 'BEGIN{ FS="\t"; sum=0; nrec=0; } { if ($9 > 0) {sum += $9; nrec++;} } END{ print sum/nrec; }'
+215.072
+samtools view -F 0x4 -f 0x2 P2_Vpall_input.dup.bam | awk 'BEGIN{ FS="\t"; sum=0; nrec=0; } { if ($9 > 0) {sum += $9; nrec++;} } END{ print sum/nrec; }'
+211.104
+samtools view -F 0x4 -f 0x2 P3_str_chip.dup.bam | awk 'BEGIN{ FS="\t"; sum=0; nrec=0; } { if ($9 > 0) {sum += $9; nrec++;} } END{ print sum/nrec; }'
+230.235
+samtools view -F 0x4 -f 0x2 P3_str_input.dup.bam | awk 'BEGIN{ FS="\t"; sum=0; nrec=0; } { if ($9 > 0) {sum += $9; nrec++;} } END{ print sum/nrec; }'
+206.518
+samtools view -F 0x4 -f 0x2 P3_Vpall_chip.dup.bam | awk 'BEGIN{ FS="\t"; sum=0; nrec=0; } { if ($9 > 0) {sum += $9; nrec++;} } END{ print sum/nrec; }'
+229.362
+samtools view -F 0x4 -f 0x2 P3_Vpall_input.dup.bam | awk 'BEGIN{ FS="\t"; sum=0; nrec=0; } { if ($9 > 0) {sum += $9; nrec++;} } END{ print sum/nrec; }'
+214.837
+
+samtools view -F 0x4 -f 0x2 P4_src_ac.dup.bam | awk 'BEGIN{ FS="\t"; sum=0; nrec=0; } { if ($9 > 0) {sum += $9; nrec++;} } END{ print sum/nrec; }'
+375.928
+samtools view -F 0x4 -f 0x2 P4_src_input.dup.bam | awk 'BEGIN{ FS="\t"; sum=0; nrec=0; } { if ($9 > 0) {sum += $9; nrec++;} } END{ print sum/nrec; }'
+331.169
+samtools view -F 0x4 -f 0x2 P5_src_ac.dup.bam | awk 'BEGIN{ FS="\t"; sum=0; nrec=0; } { if ($9 > 0) {sum += $9; nrec++;} } END{ print sum/nrec; }'
+371.804
+samtools view -F 0x4 -f 0x2 P5_src_input.dup.bam | awk 'BEGIN{ FS="\t"; sum=0; nrec=0; } { if ($9 > 0) {sum += $9; nrec++;} } END{ print sum/nrec; }'
+337.137
+samtools view -F 0x4 -f 0x2 P6_src_ac.dup.bam | awk 'BEGIN{ FS="\t"; sum=0; nrec=0; } { if ($9 > 0) {sum += $9; nrec++;} } END{ print sum/nrec; }'
+307.221
+samtools view -F 0x4 -f 0x2 P6_src_input.dup.bam | awk 'BEGIN{ FS="\t"; sum=0; nrec=0; } { if ($9 > 0) {sum += $9; nrec++;} } END{ print sum/nrec; }'
+280.239
+samtools view -F 0x4 -f 0x2 P7_src_ac.dup.bam | awk 'BEGIN{ FS="\t"; sum=0; nrec=0; } { if ($9 > 0) {sum += $9; nrec++;} } END{ print sum/nrec; }'
+302.669
+samtools view -F 0x4 -f 0x2 P7_src_input.dup.bam | awk 'BEGIN{ FS="\t"; sum=0; nrec=0; } { if ($9 > 0) {sum += $9; nrec++;} } END{ print sum/nrec; }'
+265.123
+samtools view -F 0x4 -f 0x2 P8_src_ac.dup.bam | awk 'BEGIN{ FS="\t"; sum=0; nrec=0; } { if ($9 > 0) {sum += $9; nrec++;} } END{ print sum/nrec; }'
+398.216
+samtools view -F 0x4 -f 0x2 P8_src_input.dup.bam | awk 'BEGIN{ FS="\t"; sum=0; nrec=0; } { if ($9 > 0) {sum += $9; nrec++;} } END{ print sum/nrec; }'
+367.93
+samtools view -F 0x4 -f 0x2 P9_src_ac.dup.bam | awk 'BEGIN{ FS="\t"; sum=0; nrec=0; } { if ($9 > 0) {sum += $9; nrec++;} } END{ print sum/nrec; }'
+359.408
+samtools view -F 0x4 -f 0x2 P9_src_input.dup.bam | awk 'BEGIN{ FS="\t"; sum=0; nrec=0; } { if ($9 > 0) {sum += $9; nrec++;} } END{ print sum/nrec; }'
+307.493
+samtools view -F 0x4 -f 0x2 P10_src_ac.dup.bam | awk 'BEGIN{ FS="\t"; sum=0; nrec=0; } { if ($9 > 0) {sum += $9; nrec++;} } END{ print sum/nrec; }'
+351.367
+samtools view -F 0x4 -f 0x2 P10_src_input.dup.bam | awk 'BEGIN{ FS="\t"; sum=0; nrec=0; } { if ($9 > 0) {sum += $9; nrec++;} } END{ print sum/nrec; }'
+315.925
+samtools view -F 0x4 -f 0x2 P11_src_ac.dup.bam | awk 'BEGIN{ FS="\t"; sum=0; nrec=0; } { if ($9 > 0) {sum += $9; nrec++;} } END{ print sum/nrec; }'
+335.206
+samtools view -F 0x4 -f 0x2 P11_src_input.dup.bam | awk 'BEGIN{ FS="\t"; sum=0; nrec=0; } { if ($9 > 0) {sum += $9; nrec++;} } END{ print sum/nrec; }'
+333.479
+
+
+
+##################################
+# Counting complexity in the alignments by determining low-complexity reads
+
+ls *.dup.bam | perl -pe 's/^(\S+)\.bam$/samtools view -F 0x4 -q 10 -c $1\.bam/' > counts
+launcher_creator.py -j counts -n counts -l counts.job -q normal -t 12:00:00 -a project -e email
+qsub counts.job
+
+
+##################################
+## Alignment filtering
+
+ls *.dup.bam | perl -pe 's/^(\S+)\.bam$/samtools view -bh -F 0x4 -f 0x42 -q 25 $1\.bam > $1\.filt.bam/' > filt
+launcher_creator.py -j filt -n filt -l filt.job -q normal -t 6:00:00 -a project -e email
+qsub filt.job
+
+# SOME TIMES FILTERING CAN BE A BAD IDEA 
+
+ls *.filt.bam | perl -pe 's/^(\S+)\.bam$/samtools index $1\.bam/' > index
+launcher_creator.py -j index -n index -l index.job -q normal -t 12:00:00 -a project -e email
+qsub index.job
+
+
+
+#######################
+# Converting BAM to BED
+
+ls *.dup.bam | perl -pe 's/^(\S+)\.bam$/samtools view -h -F 0x4 -f 0x40 $1\.bam | samtools view -S -b | bedtools bamtobed -i stdin > $1\.bed6/' > bam2bed
+launcher_creator.py -j bam2bed -n bam2bed -l bam2bed.job -q normal -t 12:00:00 -a project -e email
+qsub bam2bed.job
+
+
+
+##########################
+#### MACS peak calling tips
+##########################
+
+module load macs2/2.1.0
+# ALL POOLS FROM THE BRAIN
+mkdir UNFILT
+
+# IF YOU ESTIMATED FRAGMENT SIZE 
+ 
+echo 'macs2 callpeak -B --outdir UNFILT --nomodel --extsize 190 -f BAM -t P1_str_chip.dup.bam P2_str_chip.dup.bam P3_str_chip.dup.bam -c P1_str_input.dup.bam P2_str_input.dup.bam P3_str_input.dup.bam --name STR_peaks -g 1.89e9 -q 0.01 ' > peaks
+echo 'macs2 callpeak -B --outdir UNFILT --nomodel --extsize 190 -f BAM -t P1_Vpall_chip.dup.bam P2_Vpall_chip.dup.bam P3_Vpall_chip.dup.bam -c P1_Vpall_input.dup.bam P2_Vpall_input.dup.bam P3_Vpall_input.dup.bam --name VPALL_peaks -g 1.89e9 -q 0.01 '>> peaks
+echo 'macs2 callpeak -B --outdir UNFILT --nomodel --extsize 350 -f BAM -t P4_src_ac.dup.bam P5_src_ac.dup.bam P6_src_ac.dup.bam P7_src_ac.dup.bam P8_src_ac.dup.bam P9_src_ac.dup.bam P10_src_ac.dup.bam P11_src_ac.dup.bam -c P4_src_input.dup.bam P5_src_input.dup.bam P6_src_input.dup.bam P7_src_input.dup.bam P8_src_input.dup.bam P9_src_input.dup.bam P10_src_input.dup.bam P11_src_input.dup.bam --name RSC_peaks -g 1.89e9 -q 0.01' > peaks1
+
+
+launcher_creator.py -j peaks1 -n peaks1 -l peaks1job -q largemem -t 24:00:00 -a project -e email
+cat peaks1job | perl -pe 's/12way 12/1way 24/' > peaks1.job
+qsub peaks1.job
+
+module load macs2/2.1.0
+# ALL POOLS IN THE BRAIN
+# IF YOU DON'T KNOW FRAGMENT SIZE
+
+mkdir UNFILT05
+echo 'macs2 callpeak -B --outdir UNFILT05 --tsize 75 --bw 100 -f BAM -t P1_str_chip.dup.bam P2_str_chip.dup.bam P3_str_chip.dup.bam -c P1_str_input.dup.bam P2_str_input.dup.bam P3_str_input.dup.bam --name STR_peaks -g 1.89e9 -q 0.05 ' > peaks
+echo 'macs2 callpeak -B --outdir UNFILT05 --tsize 75 --bw 100 -f BAM -t P1_Vpall_chip.dup.bam P2_Vpall_chip.dup.bam P3_Vpall_chip.dup.bam -c P1_Vpall_input.dup.bam P2_Vpall_input.dup.bam P3_Vpall_input.dup.bam --name VPALL_peaks -g 1.89e9 -q 0.05 '>> peaks
+echo 'macs2 callpeak -B --outdir UNFILT05 --tsize 75 --bw 100 -f BAM -t P4_src_ac.dup.bam P5_src_ac.dup.bam P6_src_ac.dup.bam P7_src_ac.dup.bam P8_src_ac.dup.bam P9_src_ac.dup.bam P10_src_ac.dup.bam P11_src_ac.dup.bam -c P4_src_input.dup.bam P5_src_input.dup.bam P6_src_input.dup.bam P7_src_input.dup.bam P8_src_input.dup.bam P9_src_input.dup.bam P10_src_input.dup.bam P11_src_input.dup.bam --name RSC_peaks -g 1.89e9 -q 0.05' >> peaks
+launcher_creator.py -j peaks1 -n peaks1 -l peaks1job -q largemem -t 24:00:00 -a project -e email
+cat peaksjob | perl -pe 's/12way 12/1way 24/' > peaks.job
+qsub peaks.job
+
+
+# To run MACS2 bdgcmp to generate fold-enrichment and logLR track
+
+
+
+
+cd UNFILT
+module load macs2/2.1.0
+nano bedgraph
+#  * -m FE is the command for fold enrichment.
+
+macs2 bdgcmp -t STR_peaks_treat_pileup.bdg -c STR_peaks_control_lambda.bdg -o H3K27ac_STR_FE.bdg -m FE
+
+#  * -p is a pseudocount. This number may be necessay for finding 'pileup per million reads' value. 
+#   This is not necessary for FE (fold enrichment) because the labda control file will always >0. 
+#    But in order to avoid log(0) while calculating log likelihood, we'd add pseudocount. 
+#    Because I set precision as 5 decimals, here I use 0.00001.
+
+
+macs2 bdgcmp -t STR_peaks_treat_pileup.bdg -c STR_peaks_control_lambda.bdg -o H3K27ac_STR_logLR.bdg -m logLR -p 0.00001
+macs2 bdgcmp -t VPALL_peaks_treat_pileup.bdg -c VPALL_peaks_control_lambda.bdg -o H3K27ac_VPALL_FE.bdg -m FE
+macs2 bdgcmp -t VPALL_peaks_treat_pileup.bdg -c VPALL_peaks_control_lambda.bdg -o H3K27ac_VPALL_logLR.bdg -m logLR -p 0.00001
+macs2 bdgcmp -t RSC_peaks_treat_pileup.bdg -c RSC_peaks_control_lambda.bdg -o H3K27ac_RSC_FE.bdg -m FE
+macs2 bdgcmp -t RSC_peaks_treat_pileup.bdg -c RSC_peaks_control_lambda.bdg -o H3K27ac_RSC_logLR.bdg -m logLR -p 0.00001
+
+launcher_creator.py -j bedgraph -n bedgraph -l bedgraph.job -q normal -t 12:00:00 -a project -e email
+qsub bedgraph.job
+
+
+
+grep "chr24" H3K27ac_RSC_FE.bdg > RSC_chr24_FE.bdg
+grep "chr24" H3K27ac_STR_FE.bdg > STR_chr24_FE.bdg
+grep "chr24" H3K27ac_VPALL_FE.bdg > VPALL_chr24_FE.bdg
+
+grep "chr24" RSC_peaks_peaks.xls > RSC_chr24_peaks.xls
+grep "chr24" STR_peaks_peaks.xls > STR_chr24_peaks.xls
+grep "chr24" VPALL_peaks_peaks.xls > VPALL_chr24_peaks.xls
+
+grep "chr24" RSC_peaks_peaks.narrowPeak  > RSC_peaks_chr24.narrowPeak
+grep "chr24" STR_peaks_peaks.narrowPeak  > STR_peaks_chr24.narrowPeak
+grep "chr24" VPALL_peaks_peaks.narrowPeak> VPALL_peaks_chr24.narrowPeak
+
+grep "chr24" RSC_peaks_summits.bed    > RSC_chr24_summits.bed 
+grep "chr24" STR_peaks_summits.bed    > STR_chr24_summits.bed
+grep "chr24" VPALL_peaks_summits.bed  > VPALL_chr24_summits.bed
+
+
+locus v1ar is from 4899255 to 4906997
+locus pseudo is from 5018180 to  5027058
+
+
+awk -F: '{ if ($2 >= 4899255 && $2 <= 4906997) print $1}' RSC_chr24_peaks.xls
+
+'{ if ($4 >= 1 && $4 <= 10) print $1 }'
+
+
+cat RSC_peaks_peaks.xls | grep "chr24" | awk '$2>=4800000 && $2 <= 5000000 {print $0}'  > RSC_chr24_locusA_peaks.xls
+cat RSC_peaks_peaks.xls | grep "chr24" | awk '$2>=5000000 && $2 <= 5030000 {print $0}'  > RSC_chr24_locusB_peaks.xls
+cat STR_peaks_peaks.xls | grep "chr24" | awk '$2>=4800000 && $2 <= 5000000 {print $0}'  > STR_chr24_locusA_peaks.xls
+cat STR_peaks_peaks.xls | grep "chr24" | awk '$2>=5000000 && $2 <= 5030000 {print $0}'  > STR_chr24_locusB_peaks.xls
+cat VPALL_peaks_peaks.xls | grep "chr24" | awk '$2>=4800000 && $2 <= 5000000 {print $0}'  > VPALL_chr24_locusA_peaks.xls
+cat VPALL_peaks_peaks.xls | grep "chr24" | awk '$2>=5000000 && $2 <= 5030000 {print $0}'  > VPALL_chr24_locusB_peaks.xls
+
+
+cat H3K27ac_RSC_FE.bdg | grep "chr24" | awk '$2>=4800000 && $2 <= 5000000 {print $0}'  > RSC_chr24_locusA_FE.bdg
+cat H3K27ac_RSC_FE.bdg | grep "chr24" | awk '$2>=5000000 && $2 <= 5030000 {print $0}'  > RSC_chr24_locusB_FE.bdg
+cat H3K27ac_STR_FE.bdg | grep "chr24" | awk '$2>=4800000 && $2 <= 5000000 {print $0}'  > STR_chr24_locusA_FE.bdg
+cat H3K27ac_STR_FE.bdg | grep "chr24" | awk '$2>=5000000 && $2 <= 5030000 {print $0}'  > STR_chr24_locusB_FE.bdg
+cat H3K27ac_VPALL_FE.bdg | grep "chr24" | awk '$2>=4800000 && $2 <= 5000000 {print $0}'  > VPALL_chr24_locusA_FE.bdg
+cat H3K27ac_VPALL_FE.bdg | grep "chr24" | awk '$2>=5000000 && $2 <= 5030000 {print $0}'  > VPALL_chr24_locusB_FE.bdg
+
+
+# Thresholding can be done in MACS2 
+# Q-value cutoffs can be adjusted 0.10 for well-defined marks such as H3K4me3,
+ use -q 0.10 for 0.10 Q-value and -p 0.25 for 0.25 P-value cutoff
+
+
+
+echo 'macs2 callpeak --nomodel --extsize 190 -f AUTO -t P1_Vpall_chip.bwa.dup.bam P2_Vpall_chip.bwa.dup.bam P3_Vpall_chip.bwa.dup.bam -c P1_Vpall_input.bwa.dup.bam P2_Vpall_input.bwa.dup.bam P3_Vpall_input.bwa.dup.bam --name Vpall_nofilt_peaks -g 1.89e9' > Nofiltpeaks1
+launcher_creator.py -j Nofiltpeaks1 -n Nofiltpeaks1 -l Nofiltpeaks1.job -q normal -t 12:00:00 -a project -e email
+qsub Nofiltpeaks1.job
+
+
+echo 'macs2 callpeak --nomodel --extsize 190 -f AUTO -t P1_str_chip.bwa.dup.bam P2_str_chip.bwa.dup.bam P3_str_chip.bwa.dup.bam -c P1_str_input.bwa.dup.bam P2_str_input.bwa.dup.bam P3_str_input.bwa.dup.bam --name STR_nofilt_peaks -g 1.89e9' > Nofiltpeaks2
+launcher_creator.py -j Nofiltpeaks2 -n Nofiltpeaks2 -l Nofiltpeaks2.job -q normal -t 12:00:00 -a project -e email
+qsub Nofiltpeaks2.job
+
+
+
+Estimating overlap with bedtools intersect
+# Sort peaks by P-value score (higher = better) in column 8.
+sort P1_Vpall_data_peaks_peaks.narrowPeak -g -r -k 8,8 > P1_Vpall_data_sort_peaks.narrowPeak
+sort P2_Vpall_data_peaks_peaks.narrowPeak -g -r -k 8,8 > P2_Vpall_data_sort_peaks.narrowPeak
+sort P3_Vpall_data_peaks_peaks.narrowPeak -g -r -k 8,8 > P3_Vpall_data_sort_peaks.narrowPeak
+
