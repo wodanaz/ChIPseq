@@ -73,30 +73,10 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 >read_counts.txt; for file in $(ls *.fastq); do count=$(grep "@NB501060" $file | wc -l); echo -e "$file\t$count" >> rawread_counts.txt; done
 cat rawread_counts.txt
 
-P1_str_chip.R1.fastq	35063312
-P1_str_chip.R2.fastq	35063312
-P1_str_input.R1.fastq	36380302
-P1_str_input.R2.fastq	36380302
-P1_Vpall_chip.R1.fastq	33015361
-P1_Vpall_chip.R2.fastq	33015361
-P1_Vpall_input.R1.fastq	31491868
-P1_Vpall_input.R2.fastq	31491868
-P2_str_chip.R1.fastq	41418406
-P2_str_chip.R2.fastq	41418406
-P2.str_input.R1.fastq	29083304
-P2.str_input.R2.fastq	29083304
-P2_Vpall_chip.R1.fastq	45082840
-P2_Vpall_chip.R2.fastq	45082840
-P2_Vpall_input.R1.fastq	31213806
-P2_Vpall_input.R2.fastq	31213806
-P3_str_chip.R1.fastq	43222779
-P3_str_chip.R2.fastq	43222779
-P3_str_input.R1.fastq	29694579
-P3_str_input.R2.fastq	29694579
-P3_Vpall_chip.R1.fastq	27793477
-P3_Vpall_chip.R2.fastq	27793477
-P3_VPall_input.R1.fastq	33777564
-P3_VPall_input.R2.fastq	33777564
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 ####################################
 # MAPPING to the Prairie vole genome
