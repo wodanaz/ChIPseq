@@ -64,32 +64,11 @@ qsub blast3.job
 
 
 ### Unzipped fastq files list
-
-P1_str_chip.R1.fastq
-P1_str_chip.R2.fastq
-P1_str_input.R1.fastq
-P1_str_input.R2.fastq
-P1_Vpall_chip.R1.fastq
-P1_Vpall_chip.R2.fastq
-P1_Vpall_input.R1.fastq
-P1_Vpall_input.R2.fastq
-P2_str_chip.R1.fastq
-P2_str_chip.R2.fastq
-P2.str_input.R1.fastq
-P2.str_input.R2.fastq
-P2_Vpall_chip.R1.fastq
-P2_Vpall_chip.R2.fastq
-P2_Vpall_input.R1.fastq
-P2_Vpall_input.R2.fastq
-P3_str_chip.R1.fastq
-P3_str_chip.R2.fastq
-P3_str_input.R1.fastq
-P3_str_input.R2.fastq
-P3_Vpall_chip.R1.fastq
-P3_Vpall_chip.R2.fastq
-P3_VPall_input.R1.fastq
-P3_VPall_input.R2.fastq
-
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 #get read counts for output files
 >read_counts.txt; for file in $(ls *.fastq); do count=$(grep "@NB501060" $file | wc -l); echo -e "$file\t$count" >> rawread_counts.txt; done
 cat rawread_counts.txt
