@@ -203,22 +203,11 @@ launcher_creator.py -j chrstats -n chrstats -l chrstats.job -q normal -t 12:00:0
 qsub chrstats.job
 
 
-Number of alignments in the DP001225 clone
+Number of alignments in the  clone
 contig  					length  # map
-P1_str_chip.bwa.dup.idxstats.txt:DP001225	141531	14117	252
-P1_str_input.bwa.dup.idxstats.txt:DP001225	141531	21225	420
-P1_Vpall_chip.bwa.dup.idxstats.txt:DP001225	141531	10346	221
-P1_Vpall_input.bwa.dup.idxstats.txt:DP001225	141531	18310	361
-P2_str_chip.bwa.dup.idxstats.txt:DP001225	141531	4271	76
-P2_str_input.bwa.dup.idxstats.txt:DP001225	141531	16731	344
-P2_Vpall_chip.bwa.dup.idxstats.txt:DP001225	141531	3623	79
-P2_Vpall_input.bwa.dup.idxstats.txt:DP001225	141531	18315	308
-P3_str_chip.bwa.dup.idxstats.txt:DP001225	141531	19600	402
-P3_str_input.bwa.dup.idxstats.txt:DP001225	141531	18590	324
-P3_Vpall_chip.bwa.dup.idxstats.txt:DP001225	141531	8903	179
-P3_Vpall_input.bwa.dup.idxstats.txt:DP001225	141531	21573	387
 
-
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 ##########################################
 ### HERE awk script to find average insert size
