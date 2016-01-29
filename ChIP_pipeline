@@ -212,63 +212,9 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 ##########################################
 ### HERE awk script to find average insert size
 
-samtools view -F 0x4 -f 0x2 P1_str_chip.dup.bam | awk 'BEGIN{ FS="\t"; sum=0; nrec=0; } { if ($9 > 0) {sum += $9; nrec++;} } END{ print sum/nrec; }'
+samtools view -F 0x4 -f 0x2 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX| awk 'BEGIN{ FS="\t"; sum=0; nrec=0; } { if ($9 > 0) {sum += $9; nrec++;} } END{ print sum/nrec; }'
 201.768
-samtools view -F 0x4 -f 0x2 P1_str_input.dup.bam | awk 'BEGIN{ FS="\t"; sum=0; nrec=0; } { if ($9 > 0) {sum += $9; nrec++;} } END{ print sum/nrec; }'
-185.127
-samtools view -F 0x4 -f 0x2 P1_Vpall_chip.dup.bam | awk 'BEGIN{ FS="\t"; sum=0; nrec=0; } { if ($9 > 0) {sum += $9; nrec++;} } END{ print sum/nrec; }'
-194.65
-samtools view -F 0x4 -f 0x2 P1_Vpall_input.dup.bam | awk 'BEGIN{ FS="\t"; sum=0; nrec=0; } { if ($9 > 0) {sum += $9; nrec++;} } END{ print sum/nrec; }'
-204.4
-samtools view -F 0x4 -f 0x2 P2_str_chip.dup.bam | awk 'BEGIN{ FS="\t"; sum=0; nrec=0; } { if ($9 > 0) {sum += $9; nrec++;} } END{ print sum/nrec; }'
-225.081
-samtools view -F 0x4 -f 0x2 P2_str_input.dup.bam | awk 'BEGIN{ FS="\t"; sum=0; nrec=0; } { if ($9 > 0) {sum += $9; nrec++;} } END{ print sum/nrec; }'
-204.833
-samtools view -F 0x4 -f 0x2 P2_Vpall_chip.dup.bam | awk 'BEGIN{ FS="\t"; sum=0; nrec=0; } { if ($9 > 0) {sum += $9; nrec++;} } END{ print sum/nrec; }'
-215.072
-samtools view -F 0x4 -f 0x2 P2_Vpall_input.dup.bam | awk 'BEGIN{ FS="\t"; sum=0; nrec=0; } { if ($9 > 0) {sum += $9; nrec++;} } END{ print sum/nrec; }'
-211.104
-samtools view -F 0x4 -f 0x2 P3_str_chip.dup.bam | awk 'BEGIN{ FS="\t"; sum=0; nrec=0; } { if ($9 > 0) {sum += $9; nrec++;} } END{ print sum/nrec; }'
-230.235
-samtools view -F 0x4 -f 0x2 P3_str_input.dup.bam | awk 'BEGIN{ FS="\t"; sum=0; nrec=0; } { if ($9 > 0) {sum += $9; nrec++;} } END{ print sum/nrec; }'
-206.518
-samtools view -F 0x4 -f 0x2 P3_Vpall_chip.dup.bam | awk 'BEGIN{ FS="\t"; sum=0; nrec=0; } { if ($9 > 0) {sum += $9; nrec++;} } END{ print sum/nrec; }'
-229.362
-samtools view -F 0x4 -f 0x2 P3_Vpall_input.dup.bam | awk 'BEGIN{ FS="\t"; sum=0; nrec=0; } { if ($9 > 0) {sum += $9; nrec++;} } END{ print sum/nrec; }'
-214.837
 
-samtools view -F 0x4 -f 0x2 P4_src_ac.dup.bam | awk 'BEGIN{ FS="\t"; sum=0; nrec=0; } { if ($9 > 0) {sum += $9; nrec++;} } END{ print sum/nrec; }'
-375.928
-samtools view -F 0x4 -f 0x2 P4_src_input.dup.bam | awk 'BEGIN{ FS="\t"; sum=0; nrec=0; } { if ($9 > 0) {sum += $9; nrec++;} } END{ print sum/nrec; }'
-331.169
-samtools view -F 0x4 -f 0x2 P5_src_ac.dup.bam | awk 'BEGIN{ FS="\t"; sum=0; nrec=0; } { if ($9 > 0) {sum += $9; nrec++;} } END{ print sum/nrec; }'
-371.804
-samtools view -F 0x4 -f 0x2 P5_src_input.dup.bam | awk 'BEGIN{ FS="\t"; sum=0; nrec=0; } { if ($9 > 0) {sum += $9; nrec++;} } END{ print sum/nrec; }'
-337.137
-samtools view -F 0x4 -f 0x2 P6_src_ac.dup.bam | awk 'BEGIN{ FS="\t"; sum=0; nrec=0; } { if ($9 > 0) {sum += $9; nrec++;} } END{ print sum/nrec; }'
-307.221
-samtools view -F 0x4 -f 0x2 P6_src_input.dup.bam | awk 'BEGIN{ FS="\t"; sum=0; nrec=0; } { if ($9 > 0) {sum += $9; nrec++;} } END{ print sum/nrec; }'
-280.239
-samtools view -F 0x4 -f 0x2 P7_src_ac.dup.bam | awk 'BEGIN{ FS="\t"; sum=0; nrec=0; } { if ($9 > 0) {sum += $9; nrec++;} } END{ print sum/nrec; }'
-302.669
-samtools view -F 0x4 -f 0x2 P7_src_input.dup.bam | awk 'BEGIN{ FS="\t"; sum=0; nrec=0; } { if ($9 > 0) {sum += $9; nrec++;} } END{ print sum/nrec; }'
-265.123
-samtools view -F 0x4 -f 0x2 P8_src_ac.dup.bam | awk 'BEGIN{ FS="\t"; sum=0; nrec=0; } { if ($9 > 0) {sum += $9; nrec++;} } END{ print sum/nrec; }'
-398.216
-samtools view -F 0x4 -f 0x2 P8_src_input.dup.bam | awk 'BEGIN{ FS="\t"; sum=0; nrec=0; } { if ($9 > 0) {sum += $9; nrec++;} } END{ print sum/nrec; }'
-367.93
-samtools view -F 0x4 -f 0x2 P9_src_ac.dup.bam | awk 'BEGIN{ FS="\t"; sum=0; nrec=0; } { if ($9 > 0) {sum += $9; nrec++;} } END{ print sum/nrec; }'
-359.408
-samtools view -F 0x4 -f 0x2 P9_src_input.dup.bam | awk 'BEGIN{ FS="\t"; sum=0; nrec=0; } { if ($9 > 0) {sum += $9; nrec++;} } END{ print sum/nrec; }'
-307.493
-samtools view -F 0x4 -f 0x2 P10_src_ac.dup.bam | awk 'BEGIN{ FS="\t"; sum=0; nrec=0; } { if ($9 > 0) {sum += $9; nrec++;} } END{ print sum/nrec; }'
-351.367
-samtools view -F 0x4 -f 0x2 P10_src_input.dup.bam | awk 'BEGIN{ FS="\t"; sum=0; nrec=0; } { if ($9 > 0) {sum += $9; nrec++;} } END{ print sum/nrec; }'
-315.925
-samtools view -F 0x4 -f 0x2 P11_src_ac.dup.bam | awk 'BEGIN{ FS="\t"; sum=0; nrec=0; } { if ($9 > 0) {sum += $9; nrec++;} } END{ print sum/nrec; }'
-335.206
-samtools view -F 0x4 -f 0x2 P11_src_input.dup.bam | awk 'BEGIN{ FS="\t"; sum=0; nrec=0; } { if ($9 > 0) {sum += $9; nrec++;} } END{ print sum/nrec; }'
-333.479
 
 
 
